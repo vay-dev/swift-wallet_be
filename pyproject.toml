@@ -1,0 +1,19 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "deepface>=0.0.96",
+    "django-cors-headers>=4.9.0",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-simplejwt>=5.5.1",
+    "pillow>=12.0.0",
+    "opencv-python>=4.10.0",
+    "numpy>=2.0.0",
+    "python-decouple>=3.8",
+    "openai>=1.0.0",
+    "drf-spectacular>=0.27.0",
+    "twilio>=9.8.8",
+]

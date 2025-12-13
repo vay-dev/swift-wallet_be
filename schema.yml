@@ -1,0 +1,1088 @@
+openapi: 3.0.3
+info:
+  title: Swift Wallet API
+  version: 1.0.0
+  description: "\n    # Welcome to Swift Wallet API Documentation\n\n    A comprehensive
+    fintech API for mobile wallet management, featuring:\n\n    ## \U0001F510 Authentication
+    & Security\n    - Phone number-based authentication with OTP\n    - JWT token
+    authentication\n    - Device fingerprinting for one-device policy\n    - Face
+    verification using AI\n    - Transaction PIN for secure payments\n\n    ## \U0001F4B0
+    Wallet Management\n    - Mock wallet with starting balance\n    - Send/receive
+    money between users\n    - Add money simulation\n    - Transaction history with
+    filtering\n    - Real-time balance updates\n\n    ## \U0001F4B3 Bill Payments\n
+    \   - Airtime & data purchases\n    - Electricity bill payments\n    - Cable TV
+    subscriptions\n\n    ## \U0001F4CA Analytics & Insights\n    - Daily transaction
+    summaries\n    - Spending patterns analysis\n    - Transaction categorization\n
+    \   - Custom date range reports\n\n    ## \U0001F916 AI Customer Service\n    -
+    GPT-4 powered intelligent support\n    - Context-aware responses\n    - Session
+    continuity\n    - Sentiment analysis\n\n    ## \U0001F517 Getting Started\n\n
+    \   1. **Sign Up**: Request OTP for your phone number\n    2. **Verify**: Complete
+    signup with OTP verification\n    3. **Login**: Get your JWT access token\n    4.
+    **Use API**: Include token in Authorization header\n\n    ## \U0001F4DD Authentication\n\n
+    \   Most endpoints require JWT authentication. Include the token in your requests:\n\n
+    \   ```\n    Authorization: Bearer <your_access_token>\n    ```\n\n    ## \U0001F3AF
+    API Response Format\n\n    All responses follow this structure:\n\n    ```json\n
+    \   {\n      \"status\": \"success|error\",\n      \"message\": \"Description
+    of the result\",\n      \"data\": { ... }\n    }\n    ```\n\n    ## \U0001F4F1
+    Demo Mode\n\n    This is a simulation environment:\n    - No real money transactions\n
+    \   - OTP codes are returned in responses for testing\n    - Starting balance:
+    $1000 USD\n    - All payments are simulated\n\n    ---\n\n    For support or questions,
+    use the AI customer service endpoint!\n    "
+  contact:
+    name: Swift Wallet Support
+    email: support@swiftwallet.demo
+  license:
+    name: MIT License
+paths:
+  /api/auth/device/change/request-otp/:
+    post:
+      operationId: auth_device_change_request_otp_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/device/change/verify/:
+    post:
+      operationId: auth_device_change_verify_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/signup/request-otp/:
+    post:
+      operationId: auth_signup_request_otp_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/signup/verify-otp/:
+    post:
+      operationId: auth_signup_verify_otp_create
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/user/account-number/change/:
+    post:
+      operationId: user_account_number_change_create
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/user/profile/:
+    get:
+      operationId: user_profile_retrieve
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: user_profile_update
+      tags:
+      - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    patch:
+      operationId: user_profile_partial_update
+      tags:
+      - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserRequest'
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+  /api/user/profile/picture/:
+    post:
+      operationId: user_profile_picture_create
+      tags:
+      - user
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/verification/face/status/:
+    get:
+      operationId: verification_face_status_retrieve
+      tags:
+      - verification
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/verification/face/upload/:
+    post:
+      operationId: verification_face_upload_create
+      tags:
+      - verification
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/analytics/:
+    get:
+      operationId: wallet_analytics_retrieve
+      description: Retrieve transaction analytics and insights for a specified period.
+      summary: Get Transaction Analytics
+      parameters:
+      - in: query
+        name: days
+        schema:
+          type: integer
+        description: 'Number of days to analyze (default: 7)'
+      tags:
+      - Analytics
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/wallet/beneficiaries/:
+    get:
+      operationId: wallet_beneficiaries_list
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Beneficiary'
+          description: ''
+  /api/wallet/beneficiaries/add/:
+    post:
+      operationId: wallet_beneficiaries_add_create
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/dashboard/:
+    get:
+      operationId: wallet_dashboard_retrieve
+      description: "\n    Retrieve a comprehensive dashboard summary including:\n
+        \   - Wallet balance and status\n    - Recent transactions (last 5)\n    -
+        Today's transaction summary\n    - User profile information\n\n    Perfect
+        for the main dashboard/home screen of your app.\n    "
+      summary: Get Dashboard Summary
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/wallet/security/pin/set/:
+    post:
+      operationId: wallet_security_pin_set_create
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/support/chat/:
+    post:
+      operationId: wallet_support_chat_create
+      description: "\n    Interact with the AI-powered customer service chatbot.\n\n
+        \   **Features:**\n    - Context-aware responses (knows your balance, transactions)\n
+        \   - GPT-4 powered (with fallback to mock responses)\n    - Session continuity\n
+        \   - Sentiment analysis\n    - Auto-escalation to human support\n\n    **Topics
+        the AI can help with:**\n    - How to send money\n    - Check balance\n    -
+        Transaction issues\n    - Account settings\n    - App features and usage\n
+        \   "
+      summary: Chat with AI Customer Service
+      tags:
+      - AI Support
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequestRequest'
+            examples:
+              StartNewConversation:
+                value:
+                  message: How do I send money to someone?
+                summary: Start new conversation
+              ContinueExistingConversation:
+                value:
+                  message: What are the transaction limits?
+                  session_id: CS-20241126-ABC12345
+                summary: Continue existing conversation
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChatRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChatRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                StartNewConversation:
+                  value:
+                    message: How do I send money to someone?
+                  summary: Start new conversation
+                ContinueExistingConversation:
+                  value:
+                    message: What are the transaction limits?
+                    session_id: CS-20241126-ABC12345
+                  summary: Continue existing conversation
+          description: ''
+  /api/wallet/support/history/:
+    get:
+      operationId: wallet_support_history_list
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerServiceChat'
+          description: ''
+  /api/wallet/transactions/{reference}/:
+    get:
+      operationId: wallet_transactions_retrieve
+      parameters:
+      - in: path
+        name: reference
+        schema:
+          type: string
+        required: true
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/transactions/add-money/:
+    post:
+      operationId: wallet_transactions_add_money_create
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/transactions/bill-payment/:
+    post:
+      operationId: wallet_transactions_bill_payment_create
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/wallet/transactions/history/:
+    get:
+      operationId: wallet_transactions_history_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /api/wallet/transactions/send/:
+    post:
+      operationId: wallet_transactions_send_create
+      description: "\n    Transfer money to another user by phone number or account
+        number.\n\n    **Requirements:**\n    - Recipient must have an account\n    -
+        Sender must have sufficient balance\n    - Transaction PIN (optional but recommended)\n\n
+        \   **Limits:**\n    - Minimum: $1.00\n    - Maximum: $100,000.00\n    "
+      summary: Send Money
+      tags:
+      - Transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMoneyRequest'
+            examples:
+              SendByPhoneNumber:
+                value:
+                  recipient_phone: +0987654321
+                  amount: '50.00'
+                  narration: Payment for lunch
+                  transaction_pin: '1234'
+                summary: Send by phone number
+              SendByAccountNumber:
+                value:
+                  recipient_account: '1234567890'
+                  amount: '100.00'
+                  narration: Refund
+                summary: Send by account number
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SendMoneyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SendMoneyRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+              examples:
+                SendByPhoneNumber:
+                  value:
+                    recipient_phone: +0987654321
+                    amount: '50.00'
+                    narration: Payment for lunch
+                    transaction_pin: '1234'
+                  summary: Send by phone number
+                SendByAccountNumber:
+                  value:
+                    recipient_account: '1234567890'
+                    amount: '100.00'
+                    narration: Refund
+                  summary: Send by account number
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/wallet/wallet/balance/:
+    get:
+      operationId: wallet_wallet_balance_retrieve
+      description: Retrieve the current balance and wallet information for the authenticated
+        user.
+      summary: Get Wallet Balance
+      tags:
+      - Wallet
+      security:
+      - jwtAuth: []
+      - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wallet'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    Beneficiary:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        beneficiary_phone:
+          type: string
+          readOnly: true
+        beneficiary_name:
+          type: string
+          readOnly: true
+        beneficiary_account:
+          type: string
+          readOnly: true
+        nickname:
+          type: string
+          description: Optional nickname for beneficiary
+          maxLength: 100
+        is_favorite:
+          type: boolean
+        total_sent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        transaction_count:
+          type: integer
+          readOnly: true
+        last_transaction_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - beneficiary_account
+      - beneficiary_name
+      - beneficiary_phone
+      - created_at
+      - id
+      - last_transaction_at
+      - total_sent
+      - transaction_count
+    ChatMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        message_type:
+          enum:
+          - user
+          - ai
+          - system
+          type: string
+          description: |-
+            * `user` - User
+            * `ai` - AI Assistant
+            * `system` - System
+          x-spec-enum-id: 087eb73a92400a8b
+          readOnly: true
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - content
+      - created_at
+      - id
+      - message_type
+    ChatRequestRequest:
+      type: object
+      properties:
+        message:
+          type: string
+          minLength: 1
+        session_id:
+          type: string
+      required:
+      - message
+    CustomerServiceChat:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        session_id:
+          type: string
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        status:
+          enum:
+          - active
+          - resolved
+          - escalated
+          type: string
+          description: |-
+            * `active` - Active
+            * `resolved` - Resolved
+            * `escalated` - Escalated to Human
+          x-spec-enum-id: d3359f9ddf4a33ed
+        issue_category:
+          type: string
+          description: Auto-detected issue type
+          maxLength: 100
+        sentiment_score:
+          type: number
+          format: double
+          nullable: true
+          description: AI sentiment analysis 0-1
+        started_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ended_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        total_messages:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        resolved_by_ai:
+          type: boolean
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatMessage'
+          readOnly: true
+      required:
+      - ended_at
+      - id
+      - messages
+      - session_id
+      - started_at
+      - user_phone
+    PaginatedTransactionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    PatchedUserRequest:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          minLength: 1
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        full_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+    SendMoneyRequest:
+      type: object
+      properties:
+        recipient_phone:
+          type: string
+          minLength: 1
+          maxLength: 17
+        recipient_account:
+          type: string
+          minLength: 1
+          maxLength: 12
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        narration:
+          type: string
+          maxLength: 255
+        transaction_pin:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 4
+      required:
+      - amount
+      - recipient_phone
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        transaction_type:
+          enum:
+          - credit
+          - debit
+          type: string
+          description: |-
+            * `credit` - Credit
+            * `debit` - Debit
+          x-spec-enum-id: 41e026571b427c74
+        transaction_category:
+          enum:
+          - transfer
+          - deposit
+          - withdrawal
+          - bill_payment
+          - airtime
+          - refund
+          - bonus
+          type: string
+          description: |-
+            * `transfer` - Transfer
+            * `deposit` - Deposit
+            * `withdrawal` - Withdrawal
+            * `bill_payment` - Bill Payment
+            * `airtime` - Airtime Purchase
+            * `refund` - Refund
+            * `bonus` - Bonus
+          x-spec-enum-id: 995c117f7e2021a0
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        currency:
+          type: string
+          maxLength: 3
+        sender_phone:
+          type: string
+          readOnly: true
+        sender_name:
+          type: string
+          readOnly: true
+        recipient_phone:
+          type: string
+          readOnly: true
+        recipient_name:
+          type: string
+          readOnly: true
+        balance_before:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        balance_after:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        status:
+          enum:
+          - pending
+          - completed
+          - failed
+          - reversed
+          type: string
+          description: |-
+            * `pending` - Pending
+            * `completed` - Completed
+            * `failed` - Failed
+            * `reversed` - Reversed
+          x-spec-enum-id: d7fbdc8aff3415ad
+        description:
+          type: string
+        narration:
+          type: string
+          description: Short description for user
+          maxLength: 255
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - amount
+      - balance_after
+      - balance_before
+      - completed_at
+      - created_at
+      - id
+      - recipient_name
+      - recipient_phone
+      - reference
+      - sender_name
+      - sender_phone
+      - transaction_type
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        phone_number:
+          type: string
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        account_number:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        is_verified:
+          type: boolean
+          readOnly: true
+          description: AI face verification status
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/UserProfile'
+          readOnly: true
+      required:
+      - account_number
+      - date_joined
+      - id
+      - is_verified
+      - phone_number
+      - profile
+    UserProfile:
+      type: object
+      properties:
+        display_picture:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 500
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        address:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+    UserProfileRequest:
+      type: object
+      properties:
+        display_picture:
+          type: string
+          format: binary
+          nullable: true
+        bio:
+          type: string
+          maxLength: 500
+        date_of_birth:
+          type: string
+          format: date
+          nullable: true
+        address:
+          type: string
+          maxLength: 255
+        city:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 100
+    UserRequest:
+      type: object
+      properties:
+        phone_number:
+          type: string
+          minLength: 1
+          pattern: ^\+?1?\d{9,15}$
+          maxLength: 17
+        full_name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+      required:
+      - phone_number
+    Wallet:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_phone:
+          type: string
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        account_number:
+          type: string
+          readOnly: true
+        balance:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        currency:
+          type: string
+          maxLength: 3
+        is_active:
+          type: boolean
+        is_frozen:
+          type: boolean
+          description: Frozen wallets cannot transact
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - account_number
+      - created_at
+      - id
+      - updated_at
+      - user_name
+      - user_phone
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter your JWT access token obtained from login
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+servers:
+- url: http://localhost:8000
+  description: Development server
+- url: http://localhost:4200
+  description: Angular frontend (CORS enabled)
+tags:
+- name: Authentication
+  description: User signup, login, and session management
+- name: User Profile
+  description: Profile management and personal information
+- name: Face Verification
+  description: AI-powered identity verification
+- name: Wallet
+  description: Wallet balance and account information
+- name: Transactions
+  description: Send money, add funds, and transaction history
+- name: Bill Payments
+  description: Airtime, data, electricity, and cable TV payments
+- name: Security
+  description: Transaction PIN and security settings
+- name: Beneficiaries
+  description: Manage saved recipients
+- name: Analytics
+  description: Transaction analytics and insights
+- name: AI Support
+  description: AI-powered customer service chatbot
+- name: Dashboard
+  description: Summary and overview data
