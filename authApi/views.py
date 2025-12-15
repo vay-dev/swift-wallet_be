@@ -27,29 +27,33 @@ class SignupRequestOTPView(APIView):
 
             otp = generate_and_save_otp(phone_number, otp_type='signup')
 
-            # send otp via twilio
+            # send otp via SNS
             sms_success, sms_message = send_verification_sms(
                 phone_number, otp.otp_code)
 
-            if sms_message:
-                message = "Verification OTP sent successfully to your phone number."
+            if sms_success:
+                # SMS sent successfully
+                return Response({
+                    'success': True,
+                    'message': sms_message,
+                    'data': {
+                        'phone_number': phone_number,
+                        'expires_in': '5 minutes'
+                    }
+                }, status=status.HTTP_200_OK)
             else:
-                # IMPORTANT: Keep this 'otp_code' only for development/demo purposes
-                message = f'SMS delivery failed. DEV CODE: {otp.otp_code}. Please check logs.'
+                # SMS failed - return error with clear message
                 logger.error(
-                    f"SMS failed for {phone_number}. Check Twilio setup.")
-            return Response({
-                'status': 'success',
-                'message': message,  # Use the dynamic message
-                'data': {
-                    'phone_number': phone_number,
-                    # REMOVE: 'otp_code': otp.otp_code,  <-- REMOVED FOR SECURITY (unless in dev mode, see above 'else' block)
-                    'expires_in': '5 minutes'
-                }
-            }, status=status.HTTP_200_OK)
+                    f"SMS failed for {phone_number}. Error: {sms_message}")
+                return Response({
+                    'success': False,
+                    'message': sms_message,  # Clear error message from send_verification_sms
+                    'error_code': 'SMS_SEND_FAILED',
+                    'data': None
+                }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -102,7 +106,7 @@ class SignupVerifyOTPView(APIView):
             refresh = RefreshToken.for_user(user)
 
             return Response({
-                'status': 'success',
+                'success': True,
                 'message': 'Account created successfully',
                 'data': {
                     'user': UserSerializer(user).data,
@@ -114,7 +118,7 @@ class SignupVerifyOTPView(APIView):
             }, status=status.HTTP_201_CREATED)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -136,7 +140,7 @@ class LoginView(APIView):
 
                 if device.device_id != device_id:
                     return Response({
-                        'status': 'error',
+                        'success': False,
                         'message': 'Device mismatch detected',
                         'error_code': 'DEVICE_MISMATCH',
                         'data': {
@@ -167,7 +171,7 @@ class LoginView(APIView):
             refresh = RefreshToken.for_user(user)
 
             return Response({
-                'status': 'success',
+                'success': True,
                 'message': 'Login successful',
                 'data': {
                     'user': UserSerializer(user).data,
@@ -179,7 +183,7 @@ class LoginView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -198,43 +202,47 @@ class DeviceChangeRequestOTPView(APIView):
                 user = CustomUser.objects.get(phone_number=phone_number)
                 if not user.check_password(password):
                     return Response({
-                        'status': 'error',
+                        'success': False,
                         'message': 'Invalid credentials'
                     }, status=status.HTTP_401_UNAUTHORIZED)
 
                 # Generate OTP for device change
                 otp = generate_and_save_otp(
                     phone_number, otp_type='device_change')
-                
-                # send otp via twilio
+
+                # send otp via SNS
                 sms_success, sms_message = send_verification_sms(
                     phone_number, otp.otp_code)
-                
-                if sms_message:
-                    message = "Device change OTP sent successfully to your phone number."
-                else:
-                    # IMPORTANT: Keep this 'otp_code' only for development/demo purposes
-                    message = f'SMS delivery failed. DEV CODE: {otp.otp_code}. Please check logs.'
-                    logger.error(
-                        f"SMS failed for {phone_number}. Check Twilio setup.")
 
-                return Response({
-                    'status': 'success',
-                    'message': message,
-                    'data': {
-                        'phone_number': phone_number,
-                        'expires_in': '5 minutes'
-                    }
-                }, status=status.HTTP_200_OK)
+                if sms_success:
+                    # SMS sent successfully
+                    return Response({
+                        'success': True,
+                        'message': sms_message,
+                        'data': {
+                            'phone_number': phone_number,
+                            'expires_in': '5 minutes'
+                        }
+                    }, status=status.HTTP_200_OK)
+                else:
+                    # SMS failed - return error with clear message
+                    logger.error(
+                        f"SMS failed for {phone_number}. Error: {sms_message}")
+                    return Response({
+                        'success': False,
+                        'message': sms_message,  # Clear error message from send_verification_sms
+                        'error_code': 'SMS_SEND_FAILED',
+                        'data': None
+                    }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
             except CustomUser.DoesNotExist:
                 return Response({
-                    'status': 'error',
+                    'success': False,
                     'message': 'User not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -287,7 +295,7 @@ class DeviceChangeVerifyView(APIView):
                 refresh = RefreshToken.for_user(user)
 
                 return Response({
-                    'status': 'success',
+                    'success': True,
                     'message': 'Device changed successfully',
                     'data': {
                         'user': UserSerializer(user).data,
@@ -301,12 +309,12 @@ class DeviceChangeVerifyView(APIView):
 
             except (CustomUser.DoesNotExist, Device.DoesNotExist):
                 return Response({
-                    'status': 'error',
+                    'success': False,
                     'message': 'User or device not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -337,7 +345,7 @@ class AccountNumberChangeView(APIView):
             user.save()
 
             return Response({
-                'status': 'success',
+                'success': True,
                 'message': 'Account number changed successfully',
                 'data': {
                     'old_account_number': old_account_number,
@@ -346,7 +354,7 @@ class AccountNumberChangeView(APIView):
             }, status=status.HTTP_200_OK)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -381,19 +389,19 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                     profile_serializer.save()
                 else:
                     return Response({
-                        'status': 'error',
+                        'success': False,
                         'message': 'Profile validation failed',
                         'errors': profile_serializer.errors
                     }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({
-                'status': 'success',
+                'success': True,
                 'message': 'Profile updated successfully',
                 'data': UserSerializer(user).data
             }, status=status.HTTP_200_OK)
 
         return Response({
-            'status': 'error',
+            'success': False,
             'message': 'Validation failed',
             'errors': user_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -408,7 +416,7 @@ class ProfilePictureUploadView(APIView):
 
         if 'display_picture' not in request.FILES:
             return Response({
-                'status': 'error',
+                'success': False,
                 'message': 'No image file provided'
             }, status=status.HTTP_400_BAD_REQUEST)
 
@@ -416,7 +424,7 @@ class ProfilePictureUploadView(APIView):
         profile.save()
 
         return Response({
-            'status': 'success',
+            'success': True,
             'message': 'Profile picture uploaded successfully',
             'data': {
                 'display_picture': request.build_absolute_uri(profile.display_picture.url) if profile.display_picture else None

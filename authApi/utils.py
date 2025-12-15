@@ -3,8 +3,22 @@ from django.utils import timezone
 import logging
 from twilio.rest import Client
 from django.conf import settings
+import boto3
 
 logger = logging.getLogger(__name__)
+
+try:
+    # Use Pinpoint SMS client instead of SNS (AWS deprecated direct SNS SMS)
+    pinpoint_client = boto3.client(
+        'pinpoint-sms-voice-v2',
+        aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        region_name=settings.AWS_REGION_NAME
+    )
+    BOTO_CLIENT_READY = True
+except Exception as e:
+    logger.error(f"Failed to initialize AWS Pinpoint SMS client: {e}")
+    BOTO_CLIENT_READY = False
 
 
 def get_client_ip(request):
@@ -50,41 +64,60 @@ def send_device_change_notification(user, old_device_id, new_device_id, ip_addre
     return notification_message
 
 
-# Twilio SMS sending function
+# AWS SNS sending function
 def send_verification_sms(phone_number, verification_code):
     """
-    Sends a verification code to the user's phone number using Twilio.
-    Returns (success: bool, message: str)
-    """
-    if not all([settings.TWILIO_ACCOUNT_SID,
-                settings.TWILIO_AUTH_TOKEN,
-                settings.TWILIO_PHONE_NUMBER]):
-        logger.warning(
-            "Twilio credentials missing. SMS functionality skipped.")
-        # In a development/demo environment, you might log the code here instead
-        logger.warning(f"DEV MODE OTP: {verification_code} for {phone_number}")
-        return False, "SMS service is unavailable (Development Mode)."
+    Sends an OTP via AWS Pinpoint SMS.
 
-    # Initialize the Twilio client
-    client = Client(settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
+    Returns:
+        tuple: (sms_success: bool, sms_message: str)
+            - sms_success: True if SMS sent successfully, False otherwise
+            - sms_message: Success message or detailed error message
+    """
+    if not BOTO_CLIENT_READY:
+        error_msg = "SMS service is currently unavailable. Please contact support or try again later."
+        logger.error(f"AWS Pinpoint SMS client not initialized for {phone_number}")
+        return False, error_msg
 
     try:
-        # Construct the message body
-        message_body = f"""(SWIFT WALLET) Your unique verification code is {verification_code}.
-This code is ONLY valid for 5 minutes. Do not share it!"""
+        message_body = f"(SWIFT WALLET) Your verification code is: {verification_code}. It expires in 5 minutes."
 
-        # Construct the message and send
-        message = client.messages.create(
-            to=phone_number,
-            from_=settings.TWILIO_PHONE_NUMBER,
-            body=message_body
+        # Use Pinpoint SMS API v2
+        response = pinpoint_client.send_text_message(
+            DestinationPhoneNumber=phone_number,
+            MessageBody=message_body,
+            MessageType='TRANSACTIONAL',  # For OTP/time-sensitive messages
+            # OriginationIdentity is optional - uses shared number pool if not specified
         )
 
-        logger.info(
-            f"SMS sent successfully to {phone_number}. SID: {message.sid}")
-        return True, "Verification code sent successfully."
+        # AWS Pinpoint returns a MessageId upon success
+        message_id = response.get('MessageId')
+        if message_id:
+            logger.info(
+                f"AWS Pinpoint SMS sent successfully to {phone_number}. Message ID: {message_id}")
+            return True, "Verification code sent successfully to your phone number."
+        else:
+            # Failure, but no exception was raised (rare)
+            error_msg = "Failed to send SMS. Please try again or contact support."
+            logger.error(f"AWS Pinpoint returned no MessageId for {phone_number}")
+            return False, error_msg
 
     except Exception as e:
-        # Handle exceptions like invalid phone numbers or authentication errors
-        logger.error(f"Twilio SMS failed for {phone_number}: {e}")
-        return False, f"Failed to send SMS: {e}"
+        logger.error(f"AWS Pinpoint SMS send failed for {phone_number}: {e}")
+
+        # Provide user-friendly error messages based on exception type
+        error_str = str(e).lower()
+        if 'subscription' in error_str or 'needs a subscription' in error_str:
+            error_msg = "SMS service not activated. Administrator needs to enable Amazon Pinpoint SMS in AWS Console."
+        elif 'invalidparameter' in error_str or 'invalid phone number' in error_str:
+            error_msg = "Invalid phone number format. Please use international format (e.g., +1234567890)."
+        elif 'credentials' in error_str or 'unauthorized' in error_str:
+            error_msg = "SMS service authentication failed. Please contact support."
+        elif 'throttling' in error_str or 'rate' in error_str:
+            error_msg = "Too many SMS requests. Please wait a few minutes and try again."
+        elif 'network' in error_str or 'timeout' in error_str:
+            error_msg = "Network error while sending SMS. Please check your connection and try again."
+        else:
+            error_msg = f"Failed to send SMS: {str(e)}"
+
+        return False, error_msg

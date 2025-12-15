@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
@@ -21,7 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-0o#74yav1o3_&pj%2v5q=@z$n!)5z9)$14q$g90#39l)j7)s!0')
+SECRET_KEY = config(
+    'SECRET_KEY', default='django-insecure-0o#74yav1o3_&pj%2v5q=@z$n!)5z9)$14q$g90#39l)j7)s!0')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
@@ -149,7 +151,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # JWT Settings
-from datetime import timedelta
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
@@ -200,19 +201,22 @@ OPENAI_MAX_TOKENS = config('OPENAI_MAX_TOKENS', default=500, cast=int)
 PAYSTACK_LIVE_SECRET_KEY = config('PAYSTACK_LIVE_SECRET_KEY', default='')
 PAYSTACK_LIVE_PUBLIC_KEY = config('PAYSTACK_LIVE_PUBLIC_KEY', default='')
 
-PAYSTACK_SECRET_KEY = PAYSTACK_LIVE_SECRET_KEY 
+PAYSTACK_SECRET_KEY = PAYSTACK_LIVE_SECRET_KEY
 PAYSTACK_PUBLIC_KEY = PAYSTACK_LIVE_PUBLIC_KEY
 
 
-PAYSTACK_CALLBACK_URL = config('PAYSTACK_CALLBACK_URL', default='http://localhost:4200/payment/callback')
+PAYSTACK_CALLBACK_URL = config(
+    'PAYSTACK_CALLBACK_URL', default='http://localhost:4200/payment/callback')
 
 # Base URL for API calls
-PAYSTACK_BASE_URL = config('PAYSTACK_BASE_URL', default='https://api.paystack.co')
+PAYSTACK_BASE_URL = config(
+    'PAYSTACK_BASE_URL', default='https://api.paystack.co')
 
 PAYSTACK_WEBHOOK_SECRET = config('PAYSTACK_WEBHOOK_SECRET', default='')
 
 # Paystack Callback URL is mostly for web, less critical for mobile SDK integration
-PAYSTACK_CALLBACK_URL = config('PAYSTACK_CALLBACK_URL', default='http://localhost:4200/payment/callback')
+PAYSTACK_CALLBACK_URL = config(
+    'PAYSTACK_CALLBACK_URL', default='http://localhost:4200/payment/callback')
 
 # DRF Spectacular (Swagger) Configuration
 SPECTACULAR_SETTINGS = {
@@ -295,12 +299,16 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'TAGS': [
-        {'name': 'Authentication', 'description': 'User signup, login, and session management'},
-        {'name': 'User Profile', 'description': 'Profile management and personal information'},
+        {'name': 'Authentication',
+            'description': 'User signup, login, and session management'},
+        {'name': 'User Profile',
+            'description': 'Profile management and personal information'},
         {'name': 'Face Verification', 'description': 'AI-powered identity verification'},
         {'name': 'Wallet', 'description': 'Wallet balance and account information'},
-        {'name': 'Transactions', 'description': 'Send money, add funds, and transaction history'},
-        {'name': 'Bill Payments', 'description': 'Airtime, data, electricity, and cable TV payments'},
+        {'name': 'Transactions',
+            'description': 'Send money, add funds, and transaction history'},
+        {'name': 'Bill Payments',
+            'description': 'Airtime, data, electricity, and cable TV payments'},
         {'name': 'Security', 'description': 'Transaction PIN and security settings'},
         {'name': 'Beneficiaries', 'description': 'Manage saved recipients'},
         {'name': 'Analytics', 'description': 'Transaction analytics and insights'},
@@ -362,8 +370,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 
-
-# Twilio Configuration
-TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', default='')
-TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', default='')
-TWILIO_PHONE_NUMBER = config('TWILIO_PHONE_NUMBER', default='')
+# AWS SNS Configuration
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', default='')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', default='')
+AWS_REGION_NAME = config('AWS_REGION_NAME', default='eu-north-1')
