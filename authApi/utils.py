@@ -1,7 +1,6 @@
 from .models import OTP
 from django.utils import timezone
 import logging
-from twilio.rest import Client
 from django.conf import settings
 import boto3
 

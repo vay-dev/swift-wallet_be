@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'authApi',
     'walletApi',
+    'notificationApi',
     'corsheaders',
 ]
 
