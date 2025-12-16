@@ -1,0 +1,17 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "sms-voice:SendTextMessage",
+                "sms-voice:SendVoiceMessage",
+                "sms-voice:CreateConfigurationSet",
+                "sms-voice:DescribePhoneNumbers",
+                "sms-voice:DescribeSpendLimits",
+                "sms-voice:RequestPhoneNumber"
+            ],
+            "Resource": "*"
+        }
+    ]
+}

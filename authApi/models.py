@@ -109,7 +109,7 @@ class OTP(models.Model):
     )
 
     phone_number = models.CharField(max_length=17)
-    otp_code = models.CharField(max_length=4)
+    otp_code = models.CharField(max_length=6)
     otp_type = models.CharField(
         max_length=20, choices=OTP_TYPES, default='signup')
     is_verified = models.BooleanField(default=False)
@@ -138,7 +138,7 @@ class OTP(models.Model):
 
     @staticmethod
     def generate_otp():
-        return ''.join([str(random.randint(0, 9)) for _ in range(4)])
+        return ''.join([str(random.randint(0, 9)) for _ in range(6)])
 
 
 class Device(models.Model):

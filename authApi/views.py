@@ -12,6 +12,7 @@ from .serializers import (
     FaceVerificationSerializer, UserProfileUpdateSerializer
 )
 from .utils import get_client_ip, generate_and_save_otp, send_device_change_notification, send_verification_sms
+from .error_utils import format_validation_errors
 import logging
 
 logger = logging.getLogger(__name__)
@@ -52,10 +53,11 @@ class SignupRequestOTPView(APIView):
                     'data': None
                 }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -117,10 +119,11 @@ class SignupVerifyOTPView(APIView):
                 }
             }, status=status.HTTP_201_CREATED)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -182,10 +185,11 @@ class LoginView(APIView):
                 }
             }, status=status.HTTP_200_OK)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -241,10 +245,11 @@ class DeviceChangeRequestOTPView(APIView):
                     'message': 'User not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -313,10 +318,11 @@ class DeviceChangeVerifyView(APIView):
                     'message': 'User or device not found'
                 }, status=status.HTTP_404_NOT_FOUND)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -353,10 +359,11 @@ class AccountNumberChangeView(APIView):
                 }
             }, status=status.HTTP_200_OK)
 
+        error_message = format_validation_errors(serializer.errors)
         return Response({
             'success': False,
-            'message': 'Validation failed',
-            'errors': serializer.errors
+            'message': error_message,
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -388,10 +395,11 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
                 if profile_serializer.is_valid():
                     profile_serializer.save()
                 else:
+                    error_message = format_validation_errors(profile_serializer.errors)
                     return Response({
                         'success': False,
-                        'message': 'Profile validation failed',
-                        'errors': profile_serializer.errors
+                        'message': error_message,
+                        'data': None
                     }, status=status.HTTP_400_BAD_REQUEST)
 
             return Response({

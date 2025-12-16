@@ -39,7 +39,7 @@ class SignupRequestOTPSerializer(serializers.Serializer):
 
 class VerifyOTPSerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=17)
-    otp_code = serializers.CharField(max_length=4, min_length=4)
+    otp_code = serializers.CharField(max_length=6, min_length=6)
     password = serializers.CharField(
         write_only=True,
         min_length=6,
@@ -130,7 +130,7 @@ class DeviceChangeRequestSerializer(serializers.Serializer):
 
 class DeviceChangeVerifySerializer(serializers.Serializer):
     phone_number = serializers.CharField(max_length=17)
-    otp_code = serializers.CharField(max_length=4, min_length=4)
+    otp_code = serializers.CharField(max_length=6, min_length=6)
     new_device_id = serializers.CharField(max_length=255)
     device_name = serializers.CharField(max_length=255, required=False, allow_blank=True)
 
